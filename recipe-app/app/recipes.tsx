@@ -3,9 +3,9 @@ import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from
 import { useLocalSearchParams, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-
+ import Toast from "react-native-toast-message"; 
 export default function RecipesScreen() {
-  const { q } = useLocalSearchParams();
+  const { q } = useLocalSearchParams(); // e.g. "tomato potato"
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,15 +13,32 @@ export default function RecipesScreen() {
     if (!q) return;
 
     const fetchRecipes = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(
-          `https://www.themealdb.com/api/json/v1/1/filter.php?i=${q}`
-        );
-        const data = await res.json();
-        console.log("Recipes API data:", data);
-        setRecipes(data.meals || []); // API se results
+        const ingredients = (q as string).split(" ").filter(Boolean); // ["tomato","potato"]
+
+        let allResults: any[] = [];
+        for (let i = 0; i < ingredients.length; i++) {
+          const res = await fetch(
+            `https://www.themealdb.com/api/json/v1/1/filter.php?i=${ingredients[i]}`
+          );
+          const data = await res.json();
+
+          if (data.meals) {
+            if (i === 0) {
+              allResults = data.meals;
+            } else {
+              // intersection: only keep recipes present in all ingredients
+              allResults = allResults.filter((meal) =>
+                data.meals.some((m: any) => m.idMeal === meal.idMeal)
+              );
+            }
+          }
+        }
+
+        setRecipes(allResults || []);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching recipes:", error);
       } finally {
         setLoading(false);
       }
@@ -30,23 +47,38 @@ export default function RecipesScreen() {
     fetchRecipes();
   }, [q]);
 
-  const addToFavorites = async (recipe: any) => {
-    try {
-      let saved = await AsyncStorage.getItem("favorites");
-      let favs = saved ? JSON.parse(saved) : [];
+  // 👈 import
 
-      // duplicate check
-      if (!favs.find((r: any) => r.idMeal === recipe.idMeal)) {
-        favs.push(recipe);
-        await AsyncStorage.setItem("favorites", JSON.stringify(favs));
-        alert("Added to favorites ❤️");
-      } else {
-        alert("Already in favorites ⭐");
-      }
-    } catch (error) {
-      console.error("Error saving favorite:", error);
+const addToFavorites = async (recipe: any) => {
+  try {
+    let saved = await AsyncStorage.getItem("favorites");
+    let favs = saved ? JSON.parse(saved) : [];
+
+    if (!favs.find((r: any) => r.idMeal === recipe.idMeal)) {
+      favs.push(recipe);
+      await AsyncStorage.setItem("favorites", JSON.stringify(favs));
+
+      Toast.show({
+        type: "success",
+        text1: "Added to Favorites ❤️",
+        text2: recipe.strMeal,
+      });
+    } else {
+      Toast.show({
+        type: "info",
+        text1: "Already in Favorites ⭐",
+        text2: recipe.strMeal,
+      });
     }
-  };
+  } catch (error) {
+    console.error("Error saving favorite:", error);
+    Toast.show({
+      type: "error",
+      text1: "Error saving favorite ❌",
+    });
+  }
+};
+
 
   if (loading) {
     return (
