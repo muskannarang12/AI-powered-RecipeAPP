@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { router } from "expo-router";   // 👈 yeh import karo
 
 export default function HomeScreen() {
+  const [query, setQuery] = useState("");
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🍳 AI Recipe App</Text>
@@ -11,10 +14,19 @@ export default function HomeScreen() {
       <TextInput
         placeholder="Enter ingredients (e.g. chicken, tomato)"
         style={styles.input}
+        value={query}
+        onChangeText={setQuery}   // 👈 input ko state se bind karo
       />
 
       {/* Button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          if (query.trim().length > 0) {
+            router.push(`/recipes?q=${query}`);  // 👈 navigate karo aur query pass karo
+          }
+        }}
+      >
         <Text style={styles.buttonText}>Search Recipes</Text>
       </TouchableOpacity>
     </View>
