@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, ActivityIndicator, Linking } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+  Linking,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RecipeDetails() {
   const { id } = useLocalSearchParams();
   const [recipe, setRecipe] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
 
+  // 🔹 Load recipe details
   useEffect(() => {
     if (!id) return;
     const fetchRecipe = async () => {
@@ -16,6 +28,7 @@ export default function RecipeDetails() {
         );
         const data = await res.json();
         setRecipe(data.meals[0]);
+        checkIfFavorite(data.meals[0]);
       } catch (error) {
         console.error(error);
       } finally {
@@ -24,6 +37,42 @@ export default function RecipeDetails() {
     };
     fetchRecipe();
   }, [id]);
+
+  // 🔹 Check if already favorite
+  const checkIfFavorite = async (recipeData: any) => {
+    try {
+      let saved = await AsyncStorage.getItem("favorites");
+      let favs = saved ? JSON.parse(saved) : [];
+      const exists = favs.some((r: any) => r.idMeal === recipeData.idMeal);
+      setIsFavorite(exists);
+    } catch (err) {
+      console.error("Error checking favorites:", err);
+    }
+  };
+
+  // 🔹 Add/Remove from favorites
+  const toggleFavorite = async () => {
+    try {
+      let saved = await AsyncStorage.getItem("favorites");
+      let favs = saved ? JSON.parse(saved) : [];
+
+      if (isFavorite) {
+        // Remove
+        favs = favs.filter((r: any) => r.idMeal !== recipe.idMeal);
+        await AsyncStorage.setItem("favorites", JSON.stringify(favs));
+        setIsFavorite(false);
+        Alert.alert("Removed", `${recipe.strMeal} removed from favorites`);
+      } else {
+        // Add
+        favs.push(recipe);
+        await AsyncStorage.setItem("favorites", JSON.stringify(favs));
+        setIsFavorite(true);
+        Alert.alert("Added", `${recipe.strMeal} added to favorites`);
+      }
+    } catch (err) {
+      console.error("Error updating favorites:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -59,16 +108,22 @@ export default function RecipeDetails() {
       </Text>
 
       <Image
-  source={{ uri: recipe.strMealThumb }}
-  style={{
-    width: "100%",
-    height: 250,          // 👈 fixed height
-    borderRadius: 15,
-    marginBottom: 20,
-  }}
-  resizeMode="cover"
-/>
+        source={{ uri: recipe.strMealThumb }}
+        style={{ width: "100%", height: 250, borderRadius: 15, marginBottom: 20 }}
+        resizeMode="cover"
+      />
 
+      {/* ❤️ Add to Favorites Button */}
+      <TouchableOpacity
+        onPress={toggleFavorite}
+        className={`py-3 px-5 rounded-lg mb-4 ${
+          isFavorite ? "bg-red-500" : "bg-emerald-500"
+        }`}
+      >
+        <Text className="text-white text-center text-lg font-semibold">
+          {isFavorite ? "❤️ Remove from Favorites" : "🤍 Add to Favorites"}
+        </Text>
+      </TouchableOpacity>
 
       <Text className="text-xl font-semibold mb-2">📝 Ingredients</Text>
       {ingredients.map((item, idx) => (

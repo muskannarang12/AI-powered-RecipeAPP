@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { router } from "expo-router";   // 👈 Add this
+import { useLocalSearchParams, router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
+
 export default function RecipesScreen() {
   const { q } = useLocalSearchParams();
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -16,6 +18,7 @@ export default function RecipesScreen() {
           `https://www.themealdb.com/api/json/v1/1/filter.php?i=${q}`
         );
         const data = await res.json();
+        console.log("Recipes API data:", data);
         setRecipes(data.meals || []); // API se results
       } catch (error) {
         console.error(error);
@@ -26,6 +29,24 @@ export default function RecipesScreen() {
 
     fetchRecipes();
   }, [q]);
+
+  const addToFavorites = async (recipe: any) => {
+    try {
+      let saved = await AsyncStorage.getItem("favorites");
+      let favs = saved ? JSON.parse(saved) : [];
+
+      // duplicate check
+      if (!favs.find((r: any) => r.idMeal === recipe.idMeal)) {
+        favs.push(recipe);
+        await AsyncStorage.setItem("favorites", JSON.stringify(favs));
+        alert("Added to favorites ❤️");
+      } else {
+        alert("Already in favorites ⭐");
+      }
+    } catch (error) {
+      console.error("Error saving favorite:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -52,29 +73,33 @@ export default function RecipesScreen() {
         🍲 Recipes with {q}
       </Text>
 
-<FlatList
-  data={recipes}
-  keyExtractor={(item) => item.idMeal}
-  renderItem={({ item }) => (
-    <TouchableOpacity
-      className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow"
-      onPress={() => router.push(`/recipe/${item.idMeal}`)}   // 👈 Navigate
-    >
-   <Image
-  source={{ uri: item.strMealThumb }}
-  style={{ width: "100%", height: 180 }}   // 👈 yaha bhi height dena zaroori hai
-  resizeMode="cover"
-/>
+      <FlatList
+        data={recipes}
+        keyExtractor={(item) => item.idMeal}
+        renderItem={({ item }) => (
+          <View className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow">
+            {/* Navigate to Recipe Details */}
+            <TouchableOpacity onPress={() => router.push(`/recipe/${item.idMeal}`)}>
+              <Image
+                source={{ uri: item.strMealThumb }}
+                style={{ width: "100%", height: 180, borderRadius: 10 }}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
 
-      <View className="p-3">
-        <Text className="text-lg font-semibold text-gray-800">
-          {item.strMeal}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  )}
-/>
+            {/* Title + Favorite Button */}
+            <View className="p-3 flex-row justify-between items-center">
+              <Text className="text-lg font-semibold text-gray-800">
+                {item.strMeal}
+              </Text>
 
+              <TouchableOpacity onPress={() => addToFavorites(item)}>
+                <Ionicons name="heart-outline" size={26} color="red" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
     </View>
   );
 }
