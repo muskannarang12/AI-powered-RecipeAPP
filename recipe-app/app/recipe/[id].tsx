@@ -57,13 +57,11 @@ export default function RecipeDetails() {
       let favs = saved ? JSON.parse(saved) : [];
 
       if (isFavorite) {
-        // Remove
         favs = favs.filter((r: any) => r.idMeal !== recipe.idMeal);
         await AsyncStorage.setItem("favorites", JSON.stringify(favs));
         setIsFavorite(false);
         Alert.alert("Removed", `${recipe.strMeal} removed from favorites`);
       } else {
-        // Add
         favs.push(recipe);
         await AsyncStorage.setItem("favorites", JSON.stringify(favs));
         setIsFavorite(true);
@@ -76,23 +74,23 @@ export default function RecipeDetails() {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
         <ActivityIndicator size="large" color="#4CAF50" />
-        <Text className="mt-4 text-gray-600">Loading recipe...</Text>
+        <Text style={{ marginTop: 16, color: "#4B5563" }}>Loading recipe...</Text>
       </View>
     );
   }
 
   if (!recipe) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
-        <Text className="text-xl">❌ Recipe not found</Text>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "white" }}>
+        <Text style={{ fontSize: 18 }}>❌ Recipe not found</Text>
       </View>
     );
   }
 
   // Collect ingredients + measures
-  const ingredients = [];
+  const ingredients: string[] = [];
   for (let i = 1; i <= 20; i++) {
     const ingredient = recipe[`strIngredient${i}`];
     const measure = recipe[`strMeasure${i}`];
@@ -102,8 +100,8 @@ export default function RecipeDetails() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-white px-4 pt-6">
-      <Text className="text-3xl font-bold text-emerald-600 mb-3">
+    <ScrollView style={{ flex: 1, backgroundColor: "white", paddingHorizontal: 16, paddingTop: 24 }}>
+      <Text style={{ fontSize: 24, fontWeight: "bold", color: "#059669", marginBottom: 12 }}>
         {recipe.strMeal}
       </Text>
 
@@ -116,26 +114,30 @@ export default function RecipeDetails() {
       {/* ❤️ Add to Favorites Button */}
       <TouchableOpacity
         onPress={toggleFavorite}
-        className={`py-3 px-5 rounded-lg mb-4 ${
-          isFavorite ? "bg-red-500" : "bg-emerald-500"
-        }`}
+        style={{
+          paddingVertical: 12,
+          paddingHorizontal: 20,
+          borderRadius: 10,
+          marginBottom: 16,
+          backgroundColor: isFavorite ? "red" : "#059669",
+        }}
       >
-        <Text className="text-white text-center text-lg font-semibold">
+        <Text style={{ color: "white", textAlign: "center", fontSize: 16, fontWeight: "600" }}>
           {isFavorite ? "❤️ Remove from Favorites" : "🤍 Add to Favorites"}
         </Text>
       </TouchableOpacity>
 
-      <Text className="text-xl font-semibold mb-2">📝 Ingredients</Text>
+      <Text style={{ fontSize: 20, fontWeight: "600", marginBottom: 8 }}>📝 Ingredients</Text>
       {ingredients.map((item, idx) => (
-        <Text key={idx} className="text-gray-700 mb-1">• {item}</Text>
+        <Text key={idx} style={{ color: "#374151", marginBottom: 4 }}>• {item}</Text>
       ))}
 
-      <Text className="text-xl font-semibold mt-4 mb-2">👨‍🍳 Instructions</Text>
-      <Text className="text-gray-700 leading-6">{recipe.strInstructions}</Text>
+      <Text style={{ fontSize: 20, fontWeight: "600", marginTop: 16, marginBottom: 8 }}>👨‍🍳 Instructions</Text>
+      <Text style={{ color: "#374151", lineHeight: 22 }}>{recipe.strInstructions}</Text>
 
       {recipe.strYoutube ? (
         <Text
-          className="text-blue-600 mt-4 underline"
+          style={{ color: "#2563EB", marginTop: 16, textDecorationLine: "underline" }}
           onPress={() => Linking.openURL(recipe.strYoutube)}
         >
           ▶ Watch Tutorial on YouTube
