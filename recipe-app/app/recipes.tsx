@@ -6,13 +6,15 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  ToastAndroid,
+  Platform,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function RecipesScreen() {
-  const { q, c } = useLocalSearchParams(); // 🔹 Accept both query & category
+  const { q, c } = useLocalSearchParams(); // q = ingredient, c = category
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,20 +22,17 @@ export default function RecipesScreen() {
     if (!q && !c) return;
 
     const fetchRecipes = async () => {
-      setLoading(true);
       try {
         let url = "";
-
         if (q) {
-          // search by ingredient
           url = `https://www.themealdb.com/api/json/v1/1/filter.php?i=${q}`;
         } else if (c) {
-          // search by category
           url = `https://www.themealdb.com/api/json/v1/1/filter.php?c=${c}`;
         }
 
         const res = await fetch(url);
         const data = await res.json();
+        console.log("Recipes API data:", data);
         setRecipes(data.meals || []);
       } catch (error) {
         console.error(error);
@@ -45,7 +44,14 @@ export default function RecipesScreen() {
     fetchRecipes();
   }, [q, c]);
 
-  // 🔹 Add to Favorites
+  const showMessage = (msg: string) => {
+    if (Platform.OS === "android") {
+      ToastAndroid.show(msg, ToastAndroid.SHORT);
+    } else {
+      console.log(msg); // iOS me log ya koi 3rd-party toast
+    }
+  };
+
   const addToFavorites = async (recipe: any) => {
     try {
       let saved = await AsyncStorage.getItem("favorites");
@@ -54,9 +60,9 @@ export default function RecipesScreen() {
       if (!favs.find((r: any) => r.idMeal === recipe.idMeal)) {
         favs.push(recipe);
         await AsyncStorage.setItem("favorites", JSON.stringify(favs));
-        alert("Added to favorites ❤️");
+        showMessage("✅ Added to favorites");
       } else {
-        alert("Already in favorites ⭐");
+        showMessage("⭐ Already in favorites");
       }
     } catch (error) {
       console.error("Error saving favorite:", error);
@@ -86,7 +92,7 @@ export default function RecipesScreen() {
   return (
     <View className="flex-1 bg-white px-4 pt-6">
       <Text className="text-2xl font-bold text-emerald-600 mb-4">
-        🍲 {q ? `Recipes with ${q}` : `Category: ${c}`}
+        🍲 Recipes with {q ? q : c}
       </Text>
 
       <FlatList
@@ -95,9 +101,7 @@ export default function RecipesScreen() {
         renderItem={({ item }) => (
           <View className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow">
             {/* Navigate to Recipe Details */}
-            <TouchableOpacity
-              onPress={() => router.push(`/recipe/${item.idMeal}`)}
-            >
+            <TouchableOpacity onPress={() => router.push(`/recipe/${item.idMeal}`)}>
               <Image
                 source={{ uri: item.strMealThumb }}
                 style={{ width: "100%", height: 180, borderRadius: 10 }}
@@ -112,7 +116,7 @@ export default function RecipesScreen() {
               </Text>
 
               <TouchableOpacity onPress={() => addToFavorites(item)}>
-                <Ionicons name="heart-outline" size={26} color="red" />
+                <Ionicons name="heart-outline" size={26} color="red" style={{ paddingBottom: 14 }} />
               </TouchableOpacity>
             </View>
           </View>
