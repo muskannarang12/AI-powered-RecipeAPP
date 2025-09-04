@@ -1,10 +1,20 @@
-import { useEffect, useState, useCallback } from "react";
-import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 
 export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
 
   // Load saved recipes
   const loadFavorites = async () => {
@@ -12,22 +22,34 @@ export default function FavoritesScreen() {
       let saved = await AsyncStorage.getItem("favorites");
       let favs = saved ? JSON.parse(saved) : [];
       setFavorites(favs);
+      setFiltered(favs); // default show all
     } catch (error) {
       console.error("Error loading favorites:", error);
     }
   };
 
-  // ✅ Screen focus hone par reload kare
-  useFocusEffect(
-    useCallback(() => {
-      loadFavorites();
-    }, [])
-  );
+  // Reload every time screen opens
+  useFocusEffect(() => {
+    loadFavorites();
+  });
+
+  // Filter when search changes
+  useEffect(() => {
+    if (!search.trim()) {
+      setFiltered(favorites);
+    } else {
+      setFiltered(
+        favorites.filter((item) =>
+          item.strMeal.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    }
+  }, [search, favorites]);
 
   if (!favorites.length) {
     return (
-      <View className="flex-1 justify-center items-center bg-white px-4">
-        <Text className="text-xl text-gray-700 text-center">
+      <View style={styles.center}>
+        <Text style={styles.emptyText}>
           You haven’t added any favorites yet ❤️
         </Text>
       </View>
@@ -35,28 +57,32 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white px-4 pt-6">
-      <Text className="text-2xl font-bold text-emerald-600 mb-4">
-        ⭐ Your Favorite Recipes
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.heading}>⭐ Your Favorite Recipes</Text>
+
+      {/* 🔍 Search bar */}
+      <TextInput
+        placeholder="Search in favorites..."
+        value={search}
+        onChangeText={setSearch}
+        style={styles.searchInput}
+      />
 
       <FlatList
-        data={favorites}
+        data={filtered}
         keyExtractor={(item) => item.idMeal}
         renderItem={({ item }) => (
           <TouchableOpacity
-            className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow"
+            style={styles.card}
             onPress={() => router.push(`/recipe/${item.idMeal}`)}
           >
             <Image
               source={{ uri: item.strMealThumb }}
-              style={{ width: "100%", height: 180 }}
+              style={styles.image}
               resizeMode="cover"
             />
-            <View className="p-3">
-              <Text className="text-lg font-semibold text-gray-800">
-                {item.strMeal}
-              </Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{item.strMeal}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -64,3 +90,58 @@ export default function FavoritesScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  heading: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#059669",
+    marginBottom: 12,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+  },
+  card: {
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+    elevation: 2, // Android shadow
+  },
+  image: {
+    width: "100%",
+    height: 180,
+  },
+  cardContent: {
+    padding: 10,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 16,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#555",
+    textAlign: "center",
+  },
+});
