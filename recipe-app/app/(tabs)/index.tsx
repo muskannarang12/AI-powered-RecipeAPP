@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -13,6 +15,8 @@ import { router } from "expo-router";
 export default function HomeScreen() {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   // Load recent searches from AsyncStorage
   const loadSearches = async () => {
@@ -28,6 +32,21 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadSearches();
+
+    // 🔹 Fetch categories from API
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("https://www.themealdb.com/api/json/v1/1/list.php?c=list");
+        const data = await res.json();
+        setCategories(data.meals || []);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   // Save a new search
@@ -48,10 +67,15 @@ export default function HomeScreen() {
     }
   };
 
+  // Handle category tap
+  const handleCategory = (category: string) => {
+    router.push(`/recipes?c=${category}`);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🍳 AI Recipe App</Text>
-      <Text style={styles.subtitle}>Find recipes from ingredients you have</Text>
+      <Text style={styles.subtitle}>Find recipes from ingredients or browse categories</Text>
 
       {/* Search Input */}
       <TextInput
@@ -65,6 +89,26 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.button} onPress={handleSearch}>
         <Text style={styles.buttonText}>Search Recipes</Text>
       </TouchableOpacity>
+
+      {/* Categories */}
+      <View style={{ marginTop: 25, width: "100%" }}>
+        <Text style={styles.recentTitle}>🍕 Categories</Text>
+        {loadingCategories ? (
+          <ActivityIndicator size="small" color="#4CAF50" />
+        ) : (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {categories.map((cat, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={styles.categoryItem}
+                onPress={() => handleCategory(cat.strCategory)}
+              >
+                <Text style={styles.categoryText}>{cat.strCategory}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+      </View>
 
       {/* Recent Searches */}
       {recentSearches.length > 0 && (
@@ -93,8 +137,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "center",
     padding: 20,
+    paddingTop: 50,
   },
   title: {
     fontSize: 28,
@@ -142,5 +186,17 @@ const styles = StyleSheet.create({
   recentText: {
     fontSize: 16,
     color: "#4CAF50",
+  },
+  categoryItem: {
+    backgroundColor: "#E5E7EB",
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
   },
 });
