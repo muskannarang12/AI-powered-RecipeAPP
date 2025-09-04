@@ -37,6 +37,17 @@ export default function Layout() {
             ),
           }}
         />
+        <Tabs.Screen
+  name="explore"
+  options={{
+    title: "Grocery List",
+    tabBarIcon: ({ color, size }) => (
+      <Ionicons name="cart" size={size} color={color} />
+    ),
+  }}
+/>
+
+       
       </Tabs>
     </SafeAreaView>
   );

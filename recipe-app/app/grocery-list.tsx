@@ -28,32 +28,16 @@ export default function GroceryListScreen() {
     }
   };
 
-  const clearAll = async () => {
-    try {
-      await AsyncStorage.removeItem("groceryList");
-      setGroceryList([]);
-      Alert.alert("✅ Cleared", "Your grocery list is now empty.");
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Text style={{ fontSize: 22, fontWeight: "bold" }}>🛒 Grocery List</Text>
-        {groceryList.length > 0 && (
-          <TouchableOpacity
-            onPress={clearAll}
-            style={{ backgroundColor: "red", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}
-          >
-            <Text style={{ color: "white", fontWeight: "600" }}>Clear All</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: "white", padding: 16 }}
+    >
+      <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 12 }}>
+        🛒 Grocery List
+      </Text>
 
       {groceryList.length === 0 ? (
-        <Text style={{ fontSize: 16, color: "gray", marginTop: 12 }}>No items yet.</Text>
+        <Text style={{ fontSize: 16, color: "gray" }}>No items yet.</Text>
       ) : (
         groceryList.map((item, index) => (
           <View
@@ -71,7 +55,7 @@ export default function GroceryListScreen() {
             <TouchableOpacity
               onPress={() => removeItem(index)}
               style={{
-                backgroundColor: "#2563EB",
+                backgroundColor: "red",
                 paddingHorizontal: 10,
                 paddingVertical: 5,
                 borderRadius: 6,

@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Alert } from "react-native";
+
 import {
   View,
   Text,
@@ -193,6 +195,32 @@ ${recipe.strInstructions}
         }}
         resizeMode="cover"
       />
+
+
+<TouchableOpacity
+  onPress={async () => {
+    try {
+      let saved = await AsyncStorage.getItem("groceryList");
+      let list = saved ? JSON.parse(saved) : [];
+      const newItems = [...list, ...ingredients];
+      await AsyncStorage.setItem("groceryList", JSON.stringify(newItems));
+      Alert.alert("🛒 Added", "Ingredients added to Grocery List!");
+    } catch (err) {
+      console.error(err);
+    }
+  }}
+  style={{
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 16,
+    backgroundColor: "#2563EB",
+  }}
+>
+  <Text style={{ color: "white", textAlign: "center", fontSize: 16, fontWeight: "600" }}>
+    🛒 Add to Grocery List
+  </Text>
+</TouchableOpacity>
 
       {/* ❤️ Favorite Button */}
       <TouchableOpacity
