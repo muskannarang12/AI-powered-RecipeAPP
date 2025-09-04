@@ -10,13 +10,12 @@ export default function Layout() {
       <StatusBar style="dark" />
       <Tabs
         screenOptions={{
-          headerStyle: { backgroundColor: "#4CAF50" }, // Green header
-          headerTintColor: "#fff", // White text
+          headerStyle: { backgroundColor: "#4CAF50" },
+          headerTintColor: "#fff",
           headerTitleStyle: { fontWeight: "bold" },
-          tabBarActiveTintColor: "#4CAF50", // Active tab color
+          tabBarActiveTintColor: "#4CAF50",
         }}
       >
-        {/* Home tab */}
         <Tabs.Screen
           name="index"
           options={{
@@ -27,7 +26,6 @@ export default function Layout() {
           }}
         />
 
-        {/* Favorites tab */}
         <Tabs.Screen
           name="favorites"
           options={{
@@ -37,17 +35,26 @@ export default function Layout() {
             ),
           }}
         />
-        <Tabs.Screen
-  name="explore"
-  options={{
-    title: "Grocery List",
-    tabBarIcon: ({ color, size }) => (
-      <Ionicons name="cart" size={size} color={color} />
-    ),
-  }}
-/>
 
-       
+        <Tabs.Screen
+          name="explore"
+          options={{
+            title: "Grocery List",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="cart" size={size} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="meal-planner"
+          options={{
+            title: "Meal Planner",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="calendar" size={size} color={color} />
+            ),
+          }}
+        />
       </Tabs>
     </SafeAreaView>
   );
