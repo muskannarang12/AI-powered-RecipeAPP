@@ -45,16 +45,7 @@ export default function Layout() {
             ),
           }}
         />
-         <Tabs.Screen
-  name="ai-chef"
-  options={{
-    title: "AI Chef",
-    tabBarIcon: ({ color, size }) => (
-      <Ionicons name="restaurant" size={size} color={color} />
-    ),
-  }}
-/>
-
+         
         <Tabs.Screen
           name="meal-planner"
           options={{
