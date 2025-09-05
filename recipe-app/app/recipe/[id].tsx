@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
-
 import {
   View,
   Text,
@@ -20,13 +19,11 @@ export default function RecipeDetails() {
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // 🔹 Load recipe details (with offline caching)
   useEffect(() => {
     if (!id) return;
 
     const fetchRecipe = async () => {
       try {
-        // 1. Try API call
         const res = await fetch(
           `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
         );
@@ -35,17 +32,12 @@ export default function RecipeDetails() {
         if (data.meals && data.meals[0]) {
           setRecipe(data.meals[0]);
           checkIfFavorite(data.meals[0]);
-
-          // Save to cache
           await AsyncStorage.setItem(
             `recipe-${id}`,
             JSON.stringify(data.meals[0])
           );
         }
       } catch (error) {
-        console.warn("⚠️ API failed, loading from cache...");
-
-        // 2. Load from cache
         const cached = await AsyncStorage.getItem(`recipe-${id}`);
         if (cached) {
           const parsed = JSON.parse(cached);
@@ -60,7 +52,6 @@ export default function RecipeDetails() {
     fetchRecipe();
   }, [id]);
 
-  // 🔹 Check if already favorite
   const checkIfFavorite = async (recipeData: any) => {
     try {
       let saved = await AsyncStorage.getItem("favorites");
@@ -72,7 +63,6 @@ export default function RecipeDetails() {
     }
   };
 
-  // 🔹 Add/Remove from favorites
   const toggleFavorite = async () => {
     try {
       let saved = await AsyncStorage.getItem("favorites");
@@ -92,7 +82,6 @@ export default function RecipeDetails() {
     }
   };
 
-  // 🔹 Share Recipe
   const shareRecipe = async () => {
     if (!recipe) return;
 
@@ -129,11 +118,11 @@ ${recipe.strInstructions}
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "white",
+          backgroundColor: "#FFF8F0",
         }}
       >
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text style={{ marginTop: 16, color: "#4B5563" }}>
+        <ActivityIndicator size="large" color="#E85D04" />
+        <Text style={{ marginTop: 16, color: "#6C757D" }}>
           Loading recipe...
         </Text>
       </View>
@@ -147,15 +136,14 @@ ${recipe.strInstructions}
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "white",
+          backgroundColor: "#FFF8F0",
         }}
       >
-        <Text style={{ fontSize: 18 }}>❌ Recipe not found</Text>
+        <Text style={{ fontSize: 18, color: "#D62828" }}>❌ Recipe not found</Text>
       </View>
     );
   }
 
-  // Collect ingredients + measures
   const ingredients: string[] = [];
   for (let i = 1; i <= 20; i++) {
     const ingredient = recipe[`strIngredient${i}`];
@@ -169,16 +157,16 @@ ${recipe.strInstructions}
     <ScrollView
       style={{
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: "#FFF8F0",
         paddingHorizontal: 16,
         paddingTop: 24,
       }}
     >
       <Text
         style={{
-          fontSize: 24,
+          fontSize: 26,
           fontWeight: "bold",
-          color: "#059669",
+          color: "#D62828",
           marginBottom: 12,
         }}
       >
@@ -196,31 +184,38 @@ ${recipe.strInstructions}
         resizeMode="cover"
       />
 
-
-<TouchableOpacity
-  onPress={async () => {
-    try {
-      let saved = await AsyncStorage.getItem("groceryList");
-      let list = saved ? JSON.parse(saved) : [];
-      const newItems = [...list, ...ingredients];
-      await AsyncStorage.setItem("groceryList", JSON.stringify(newItems));
-      Alert.alert("🛒 Added", "Ingredients added to Grocery List!");
-    } catch (err) {
-      console.error(err);
-    }
-  }}
-  style={{
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    marginBottom: 16,
-    backgroundColor: "#2563EB",
-  }}
->
-  <Text style={{ color: "white", textAlign: "center", fontSize: 16, fontWeight: "600" }}>
-    🛒 Add to Grocery List
-  </Text>
-</TouchableOpacity>
+      {/* 🛒 Grocery List */}
+      <TouchableOpacity
+        onPress={async () => {
+          try {
+            let saved = await AsyncStorage.getItem("groceryList");
+            let list = saved ? JSON.parse(saved) : [];
+            const newItems = [...list, ...ingredients];
+            await AsyncStorage.setItem("groceryList", JSON.stringify(newItems));
+            Alert.alert("🛒 Added", "Ingredients added to Grocery List!");
+          } catch (err) {
+            console.error(err);
+          }
+        }}
+        style={{
+          paddingVertical: 12,
+          paddingHorizontal: 20,
+          borderRadius: 10,
+          marginBottom: 16,
+          backgroundColor: "#F77F00",
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            textAlign: "center",
+            fontSize: 16,
+            fontWeight: "600",
+          }}
+        >
+          🛒 Add to Grocery List
+        </Text>
+      </TouchableOpacity>
 
       {/* ❤️ Favorite Button */}
       <TouchableOpacity
@@ -230,7 +225,7 @@ ${recipe.strInstructions}
           paddingHorizontal: 20,
           borderRadius: 10,
           marginBottom: 12,
-          backgroundColor: isFavorite ? "red" : "#059669",
+          backgroundColor: isFavorite ? "#D62828" : "#E85D04",
         }}
       >
         <Text
@@ -253,7 +248,7 @@ ${recipe.strInstructions}
           paddingHorizontal: 20,
           borderRadius: 10,
           marginBottom: 20,
-          backgroundColor: "#3B82F6",
+          backgroundColor: "#F77F00",
         }}
       >
         <Text
@@ -268,11 +263,18 @@ ${recipe.strInstructions}
         </Text>
       </TouchableOpacity>
 
-      <Text style={{ fontSize: 20, fontWeight: "600", marginBottom: 8 }}>
+      <Text
+        style={{
+          fontSize: 20,
+          fontWeight: "700",
+          marginBottom: 8,
+          color: "#D62828",
+        }}
+      >
         📝 Ingredients
       </Text>
       {ingredients.map((item, idx) => (
-        <Text key={idx} style={{ color: "#374151", marginBottom: 4 }}>
+        <Text key={idx} style={{ color: "#6C757D", marginBottom: 4 }}>
           • {item}
         </Text>
       ))}
@@ -280,36 +282,36 @@ ${recipe.strInstructions}
       <Text
         style={{
           fontSize: 20,
-          fontWeight: "600",
+          fontWeight: "700",
           marginTop: 16,
           marginBottom: 8,
+          color: "#D62828",
         }}
       >
         👨‍🍳 Instructions
       </Text>
-      <Text style={{ color: "#374151", lineHeight: 22 }}>
+      <Text style={{ color: "#6C757D", lineHeight: 22 }}>
         {recipe.strInstructions}
       </Text>
 
-  {recipe.strYoutube ? (
-  <TouchableOpacity
-    onPress={() => Linking.openURL(recipe.strYoutube)}
-    style={{ marginTop: 8 }}
-  >
-    <Text
-      style={{
-        color: "#2563EB",
-        fontSize: 16,
-        paddingBottom: 50,
-        fontWeight: "600",
-        textDecorationLine: "underline",
-      }}
-    >
-      ▶ Watch Tutorial on YouTube
-    </Text>
-  </TouchableOpacity>
-) : null}
-
+      {recipe.strYoutube ? (
+        <TouchableOpacity
+          onPress={() => Linking.openURL(recipe.strYoutube)}
+          style={{ marginTop: 12 }}
+        >
+          <Text
+            style={{
+              color: "#E85D04",
+              fontSize: 16,
+              paddingBottom: 50,
+              fontWeight: "600",
+              textDecorationLine: "underline",
+            }}
+          >
+            ▶ Watch Tutorial on YouTube
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </ScrollView>
   );
 }

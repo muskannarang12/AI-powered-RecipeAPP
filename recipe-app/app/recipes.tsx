@@ -17,6 +17,7 @@ export default function RecipesScreen() {
   const { q, c } = useLocalSearchParams(); // q = ingredient, c = category
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<any[]>([]);
 
   useEffect(() => {
     if (!q && !c) return;
@@ -32,7 +33,6 @@ export default function RecipesScreen() {
 
         const res = await fetch(url);
         const data = await res.json();
-        console.log("Recipes API data:", data);
         setRecipes(data.meals || []);
       } catch (error) {
         console.error(error);
@@ -41,86 +41,148 @@ export default function RecipesScreen() {
       }
     };
 
+    const loadFavorites = async () => {
+      const saved = await AsyncStorage.getItem("favorites");
+      setFavorites(saved ? JSON.parse(saved) : []);
+    };
+
     fetchRecipes();
+    loadFavorites();
   }, [q, c]);
 
   const showMessage = (msg: string) => {
     if (Platform.OS === "android") {
       ToastAndroid.show(msg, ToastAndroid.SHORT);
     } else {
-      console.log(msg); // iOS me log ya koi 3rd-party toast
+      console.log(msg);
     }
   };
 
-  const addToFavorites = async (recipe: any) => {
+  const toggleFavorite = async (recipe: any) => {
     try {
-      let saved = await AsyncStorage.getItem("favorites");
-      let favs = saved ? JSON.parse(saved) : [];
+      let favs = [...favorites];
+      const exists = favs.find((r) => r.idMeal === recipe.idMeal);
 
-      if (!favs.find((r: any) => r.idMeal === recipe.idMeal)) {
-        favs.push(recipe);
-        await AsyncStorage.setItem("favorites", JSON.stringify(favs));
-        showMessage("✅ Added to favorites");
+      if (exists) {
+        favs = favs.filter((r) => r.idMeal !== recipe.idMeal);
+        showMessage("❌ Removed from favorites");
       } else {
-        showMessage("⭐ Already in favorites");
+        favs.push(recipe);
+        showMessage("✅ Added to favorites");
       }
+
+      setFavorites(favs);
+      await AsyncStorage.setItem("favorites", JSON.stringify(favs));
     } catch (error) {
-      console.error("Error saving favorite:", error);
+      console.error("Error updating favorites:", error);
     }
   };
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#4CAF50" />
-        <Text className="mt-4 text-gray-600">Fetching recipes...</Text>
+      <View className="flex-1 justify-center items-center" style={{ backgroundColor: "#FFF8F0" }}>
+        <ActivityIndicator size="large" color="#D62828" />
+        <Text style={{ marginTop: 10, color: "#6C757D", fontSize: 16 }}>
+          Fetching recipes...
+        </Text>
       </View>
     );
   }
 
   if (!recipes.length) {
     return (
-      <View className="flex-1 justify-center items-center bg-white px-4">
-        <Text className="text-xl text-gray-700">
-          No recipes found for{" "}
-          <Text className="font-bold">{q ? q : c}</Text> ❌
+      <View
+        className="flex-1 justify-center items-center px-6 mt-10"
+        style={{ backgroundColor: "#FFF8F0" }}
+      >
+        <Text style={{ fontSize: 20, color: "#6C757D", textAlign: "center", lineHeight: 28,   marginTop: 50 }}>
+          Sorry, no recipes found for{" "}
+          <Text style={{ fontWeight: "bold", color: "#D62828" }}>{q ? q : c}</Text> 🙁
         </Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white px-4 pt-6">
-      <Text className="text-2xl font-bold text-emerald-600 mb-4">
+    <View className="flex-1 px-4" style={{ backgroundColor: "#FFF8F0" }}>
+      {/* Centered heading with extra padding */}
+      <Text
+        style={{
+          fontSize: 26,
+          fontWeight: "bold",
+          color: "#D62828",
+          textAlign: "center",
+          marginTop: 50,
+          marginBottom: 20,
+        }}
+      >
         🍲 Recipes with {q ? q : c}
       </Text>
 
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.idMeal}
-        renderItem={({ item }) => (
-          <View className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow">
-            {/* Navigate to Recipe Details */}
-            <TouchableOpacity onPress={() => router.push(`/recipe/${item.idMeal}`)}>
-              <Image
-                source={{ uri: item.strMealThumb }}
-                style={{ width: "100%", height: 180, borderRadius: 10 }}
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
+        renderItem={({ item }) => {
+          const isFavorite = favorites.some((r) => r.idMeal === item.idMeal);
 
-            {/* Title + Favorite Button */}
-            <View className="p-3 flex-row justify-between items-center">
-              <Text className="text-lg font-semibold text-gray-800">
-                {item.strMeal}
-              </Text>
-
-              <TouchableOpacity onPress={() => addToFavorites(item)}>
-                <Ionicons name="heart-outline" size={26} color="red" style={{ paddingBottom: 14 }} />
+          return (
+            <View
+              style={{
+                marginBottom: 16,
+                borderRadius: 16,
+                overflow: "hidden",
+                backgroundColor: "white",
+                shadowColor: "#000",
+                shadowOpacity: 0.1,
+                shadowRadius: 6,
+                elevation: 3,
+              }}
+            >
+              {/* Navigate to Recipe Details */}
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => router.push(`/recipe/${item.idMeal}`)}
+              >
+                <Image
+                  source={{ uri: item.strMealThumb }}
+                  style={{ width: "100%", height: 200 }}
+                  resizeMode="cover"
+                />
               </TouchableOpacity>
+
+              {/* Title + Favorite Button */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: 12,
+                }}
+              >
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "#333", flex: 1 }}>
+                  {item.strMeal}
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => toggleFavorite(item)}
+                  style={{
+                    marginLeft: 10,
+                    backgroundColor: isFavorite ? "#F77F00" : "#f3f4f6",
+                    padding: 8,
+                    borderRadius: 20,
+                  }}
+                >
+                  <Ionicons
+                    name={isFavorite ? "heart" : "heart-outline"}
+                    size={22}
+                    color={isFavorite ? "white" : "#6C757D"}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
+          );
+        }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

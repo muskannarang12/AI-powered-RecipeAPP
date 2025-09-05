@@ -8,7 +8,7 @@ export default function AiChef() {
 
   const getAiRecipe = async () => {
     try {
-      const res = await fetch("https://your-server.com/ai-chef", {
+      const res = await fetch("http://localhost:3000/ai-chef", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),

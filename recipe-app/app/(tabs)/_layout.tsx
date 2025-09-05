@@ -10,10 +10,8 @@ export default function Layout() {
       <StatusBar style="dark" />
       <Tabs
         screenOptions={{
-          headerStyle: { backgroundColor: "#4CAF50" },
-          headerTintColor: "#fff",
-          headerTitleStyle: { fontWeight: "bold" },
-          tabBarActiveTintColor: "#4CAF50",
+          headerShown: false, // 🔹 Hide the green header
+          tabBarActiveTintColor: "#D62828",
         }}
       >
         <Tabs.Screen
@@ -45,7 +43,7 @@ export default function Layout() {
             ),
           }}
         />
-         
+
         <Tabs.Screen
           name="meal-planner"
           options={{

@@ -10,9 +10,7 @@ export default function Layout() {
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: "#4CAF50" }, 
-          headerTintColor: "#fff", 
-          headerTitleStyle: { fontWeight: "bold" },
+           headerShown: false,
         }}
       />
       <Toast /> {/* 👈 global toast container */}
