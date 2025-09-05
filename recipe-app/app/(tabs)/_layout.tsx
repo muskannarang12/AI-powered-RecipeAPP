@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function Layout() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFF8F0" }}>
       <StatusBar style="dark" />
       <Tabs
         screenOptions={{

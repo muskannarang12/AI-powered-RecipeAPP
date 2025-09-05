@@ -90,58 +90,65 @@ export default function FavoritesScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF8F0", // soft beige background
     paddingHorizontal: 16,
-    paddingTop: 24,
+    paddingTop: 30,
   },
   heading: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#059669",
-    marginBottom: 12,
+    color: "#D62828", // tomato red for heading
+    marginBottom: 16,
+    textAlign: "center",
   },
   searchInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 15,
+    borderWidth: 1.5,
+    borderColor: "#6C757D", // muted gray
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+    backgroundColor: "#fff",
+    fontSize: 16,
+    color: "#333",
   },
   card: {
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 12,
+    marginBottom: 18,
+    borderWidth: 1.5,
+    borderColor: "#eee",
+    borderRadius: 14,
     backgroundColor: "#fff",
     overflow: "hidden",
-    elevation: 2, // Android shadow
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
   },
   image: {
     width: "100%",
     height: 180,
   },
   cardContent: {
-    padding: 10,
+    padding: 12,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
-    color: "#333",
+    color: "#6C757D", // muted gray for titles
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF8F0", // beige
     padding: 16,
   },
   emptyText: {
     fontSize: 18,
-    color: "#555",
+    color: "#6C757D", // muted gray
     textAlign: "center",
   },
 });

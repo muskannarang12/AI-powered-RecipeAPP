@@ -185,83 +185,79 @@ ${recipe.strInstructions}
       />
 
       {/* 🛒 Grocery List */}
-      <TouchableOpacity
-        onPress={async () => {
-          try {
-            let saved = await AsyncStorage.getItem("groceryList");
-            let list = saved ? JSON.parse(saved) : [];
-            const newItems = [...list, ...ingredients];
-            await AsyncStorage.setItem("groceryList", JSON.stringify(newItems));
-            Alert.alert("🛒 Added", "Ingredients added to Grocery List!");
-          } catch (err) {
-            console.error(err);
-          }
-        }}
-        style={{
-          paddingVertical: 12,
-          paddingHorizontal: 20,
-          borderRadius: 10,
-          marginBottom: 16,
-          backgroundColor: "#F77F00",
-        }}
-      >
-        <Text
-          style={{
-            color: "white",
-            textAlign: "center",
-            fontSize: 16,
-            fontWeight: "600",
-          }}
-        >
-          🛒 Add to Grocery List
-        </Text>
-      </TouchableOpacity>
+     {/* 🛒 Grocery List */}
+<TouchableOpacity
+  onPress={async () => {
+    try {
+      let saved = await AsyncStorage.getItem("groceryList");
+      let list = saved ? JSON.parse(saved) : [];
+      const newItems = [...list, ...ingredients];
+      await AsyncStorage.setItem("groceryList", JSON.stringify(newItems));
+      Alert.alert("🛒 Added", "Ingredients added to Grocery List!");
+    } catch (err) {
+      console.error(err);
+    }
+  }}
+  style={{
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    backgroundColor: "#F77F00",
+  }}
+>
+  <Text style={{ color: "white", textAlign: "center", fontSize: 16, fontWeight: "700" }}>
+    🛒 Add to Grocery List
+  </Text>
+</TouchableOpacity>
 
-      {/* ❤️ Favorite Button */}
-      <TouchableOpacity
-        onPress={toggleFavorite}
-        style={{
-          paddingVertical: 12,
-          paddingHorizontal: 20,
-          borderRadius: 10,
-          marginBottom: 12,
-          backgroundColor: isFavorite ? "#D62828" : "#E85D04",
-        }}
-      >
-        <Text
-          style={{
-            color: "white",
-            textAlign: "center",
-            fontSize: 16,
-            fontWeight: "600",
-          }}
-        >
-          {isFavorite ? "❤️ Remove from Favorites" : "🤍 Add to Favorites"}
-        </Text>
-      </TouchableOpacity>
+{/* ❤️ Favorite Button */}
+<TouchableOpacity
+  onPress={toggleFavorite}
+  style={{
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    backgroundColor: isFavorite ? "#D62828" : "transparent",
+    borderWidth: 2,
+    borderColor: "#D62828",
+  }}
+>
+  <Text
+    style={{
+      color: isFavorite ? "white" : "#D62828",
+      textAlign: "center",
+      fontSize: 16,
+      fontWeight: "700",
+    }}
+  >
+    {isFavorite ? "❤️ Remove from Favorites" : "🤍 Add to Favorites"}
+  </Text>
+</TouchableOpacity>
 
-      {/* 📤 Share Button */}
-      <TouchableOpacity
-        onPress={shareRecipe}
-        style={{
-          paddingVertical: 12,
-          paddingHorizontal: 20,
-          borderRadius: 10,
-          marginBottom: 20,
-          backgroundColor: "#F77F00",
-        }}
-      >
-        <Text
-          style={{
-            color: "white",
-            textAlign: "center",
-            fontSize: 16,
-            fontWeight: "600",
-          }}
-        >
-          📤 Share Recipe
-        </Text>
-      </TouchableOpacity>
+{/* 📤 Share Button */}
+<TouchableOpacity
+  onPress={shareRecipe}
+  style={{
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 30,
+    backgroundColor: "white",
+    borderWidth: 1.5,
+    borderColor: "#6C757D",
+  }}
+>
+  <Text
+    style={{
+      color: "#6C757D",
+      textAlign: "center",
+      fontSize: 16,
+      fontWeight: "600",
+    }}
+  >
+    📤 Share Recipe
+  </Text>
+</TouchableOpacity>
+
 
       <Text
         style={{

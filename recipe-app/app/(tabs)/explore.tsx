@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function GroceryListScreen() {
@@ -39,45 +46,29 @@ export default function GroceryListScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <Text style={{ fontSize: 22, fontWeight: "bold" }}>🛒 Grocery List</Text>
+    <ScrollView style={styles.container}>
+      {/* Header row */}
+      <View style={styles.headerRow}>
+        <Text style={styles.heading}>🛒 Grocery List</Text>
         {groceryList.length > 0 && (
-          <TouchableOpacity
-            onPress={clearAll}
-            style={{ backgroundColor: "red", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}
-          >
-            <Text style={{ color: "white", fontWeight: "600" }}>Clear All</Text>
+          <TouchableOpacity onPress={clearAll} style={styles.clearBtn}>
+            <Text style={styles.clearBtnText}>Clear All</Text>
           </TouchableOpacity>
         )}
       </View>
 
+      {/* Empty State */}
       {groceryList.length === 0 ? (
-        <Text style={{ fontSize: 16, color: "gray", marginTop: 12 }}>No items yet.</Text>
+        <Text style={styles.emptyText}>No items yet.</Text>
       ) : (
         groceryList.map((item, index) => (
-          <View
-            key={index}
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              paddingVertical: 8,
-              borderBottomWidth: 1,
-              borderBottomColor: "#eee",
-            }}
-          >
-            <Text style={{ fontSize: 16 }}>{item}</Text>
+          <View key={index} style={styles.itemRow}>
+            <Text style={styles.itemText}>{item}</Text>
             <TouchableOpacity
               onPress={() => removeItem(index)}
-              style={{
-                backgroundColor: "#2563EB",
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                borderRadius: 6,
-              }}
+              style={styles.removeBtn}
             >
-              <Text style={{ color: "white" }}>Remove</Text>
+              <Text style={styles.removeBtnText}>Remove</Text>
             </TouchableOpacity>
           </View>
         ))
@@ -85,3 +76,69 @@ export default function GroceryListScreen() {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF8F0", // Soft beige
+    padding: 16,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 50,
+    marginBottom: 20,
+  },
+  heading: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#D62828", // Tomato Red
+  },
+  clearBtn: {
+    backgroundColor: "#F77F00", // Warm Orange
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  clearBtnText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#6C757D", // Muted gray
+    marginTop: 20,
+    textAlign: "center",
+  },
+  itemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    marginBottom: 10,
+    elevation: 2, // shadow for Android
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+  },
+  itemText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+  },
+  removeBtn: {
+    backgroundColor: "#F77F00", // Warm Orange
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  removeBtnText: {
+    color: "white",
+    fontWeight: "600",
+  },
+});
