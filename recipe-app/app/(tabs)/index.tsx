@@ -169,7 +169,7 @@ export default function HomeScreen() {
       {/* 🔹 Floating AI Button */}
       <TouchableOpacity style={styles.aiFab} onPress={() => setAiVisible(true)}>
         <Text style={{ color: "white", fontWeight: "600" }}>
-          🤖 Chat with AI
+          🤖 Ask from AI
         </Text>
       </TouchableOpacity>
 
