@@ -29,7 +29,7 @@ export default function AiChef() {
         placeholder="Enter ingredients (e.g. eggs, bread, cheese)"
         style={{
           borderWidth: 1,
-          borderColor: "#ddd",
+          borderColor: "#080303ff",
           padding: 10,
           borderRadius: 8,
           marginBottom: 12,
